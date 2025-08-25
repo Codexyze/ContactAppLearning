@@ -17,8 +17,23 @@ class NotesViewModel @Inject constructor(private val repository: NotesRepository
     private val _notes = MutableStateFlow<List<Contact>>(emptyList())
     val notes: StateFlow<List<Contact>> = _notes
 
-    init {
-        fetchNotes()
+
+    fun OnInent(intent: NotesIntent){
+        when(intent){
+            is NotesIntent.SaveNote -> {
+                saveOrUpdate(intent.contact)
+
+            }
+            is NotesIntent.DeleteNote -> {
+                delete(intent.contact)
+
+            }
+            is NotesIntent.LoadNotes -> {
+                fetchNotes()
+
+            }
+        }
+
     }
 
     // Fetch all notes from the repository
@@ -43,4 +58,10 @@ class NotesViewModel @Inject constructor(private val repository: NotesRepository
             repository.delete(contact)
         }
     }
+}
+
+sealed interface NotesIntent {
+    object LoadNotes : NotesIntent
+    data class SaveNote(val contact: Contact) : NotesIntent
+    data class DeleteNote(val contact: Contact) : NotesIntent
 }
