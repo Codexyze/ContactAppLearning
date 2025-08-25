@@ -1,15 +1,17 @@
-package com.example.roomstorage.data
+package com.example.roomstorage.Presentation.Viewmodels
 
-import android.content.Context
-import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.example.roomstorage.data.Contact
+import com.example.roomstorage.data.Repository.NotesRepository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class NotesViewModel(private val repository: NotesRepository) : ViewModel() {
+@HiltViewModel
+class NotesViewModel @Inject constructor(private val repository: NotesRepository) : ViewModel() {
 
     // StateFlow to hold the list of notes
     private val _notes = MutableStateFlow<List<Contact>>(emptyList())
@@ -40,14 +42,5 @@ class NotesViewModel(private val repository: NotesRepository) : ViewModel() {
         viewModelScope.launch {
             repository.delete(contact)
         }
-    }
-}
-class NotesViewModelFactory(private val repository: NotesRepository) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(NotesViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return NotesViewModel(repository) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
