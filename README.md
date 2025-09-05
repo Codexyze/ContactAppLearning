@@ -46,7 +46,6 @@ If you’d like to contribute to **Contact App**, feel free to fork the repo and
 
 This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
----
 
 ---
 
