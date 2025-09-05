@@ -7,6 +7,12 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.animation.animateColorAsState
+import androidx.compose.animation.core.TwoWayConverter
+import androidx.compose.animation.core.animateDpAsState
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.animation.core.animateValueAsState
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
@@ -21,6 +27,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -37,9 +44,11 @@ import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
@@ -55,6 +64,24 @@ import com.example.roomstorage.data.Contact
 fun MainApp(viewModel: NotesViewModel = hiltViewModel()) {
     var input by remember { mutableStateOf(TextFieldValue("")) }
     var name by remember { mutableStateOf(TextFieldValue("")) }
+    val sizeAnimination = rememberSaveable { mutableStateOf(false) }
+    val sizeAniminationTransition = animateDpAsState(
+        targetValue = if(sizeAnimination.value) 45.dp else 12.dp,
+        animationSpec = tween(1000),
+        finishedListener = {
+            sizeAnimination.value = false
+        }
+    )
+    val colourState = rememberSaveable { mutableStateOf(false) }
+    val colourAniminate = animateColorAsState(
+        targetValue = if(colourState.value) Color.Cyan else MaterialTheme.colorScheme.primary,
+        animationSpec = tween(500),
+        finishedListener = {
+            colourState.value = false
+        }
+    )
+
+
 
     // Observe the notes list from the ViewModel
     val notesList by viewModel.notes.collectAsState()
@@ -69,7 +96,7 @@ fun MainApp(viewModel: NotesViewModel = hiltViewModel()) {
             TopAppBar(
                 title = { Text("📒 Call Book") },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = MaterialTheme.colorScheme.primary,
+                    containerColor = colourAniminate.value,
                     titleContentColor = MaterialTheme.colorScheme.onPrimary
                 )
             )
@@ -114,14 +141,22 @@ fun MainApp(viewModel: NotesViewModel = hiltViewModel()) {
                                     name = name.text.trim(),
                                     call = input.text.trim()
                                 )
+                                sizeAnimination.value= true
+                                colourState.value = true
                                 viewModel.OnInent(NotesIntent.SaveNote(contact))
                                 name = TextFieldValue("")
                                 input = TextFieldValue("")
+
                             }
                         },
                         modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(12.dp)
+                        shape = RoundedCornerShape(sizeAniminationTransition.value),
+                        colors = ButtonDefaults.buttonColors(
+                            containerColor = colourAniminate.value
+                        )
                     ) {
+
+
                         Text("💾 Save Contact")
                     }
                 }
