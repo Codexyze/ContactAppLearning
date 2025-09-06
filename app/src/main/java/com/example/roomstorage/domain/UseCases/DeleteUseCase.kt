@@ -1,7 +1,7 @@
 package com.example.roomstorage.domain.UseCases
 
 import com.example.roomstorage.data.Contact
-import com.example.roomstorage.data.Repository.NotesRepository
+import com.example.roomstorage.domain.Repository.NotesRepository
 import javax.inject.Inject
 
 class DeleteUseCase @Inject constructor(private val repository: NotesRepository) {

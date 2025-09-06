@@ -3,8 +3,9 @@ package com.example.roomstorage.Presentation.Viewmodels
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.roomstorage.data.Contact
-import com.example.roomstorage.data.Repository.NotesRepository
+import com.example.roomstorage.domain.Repository.NotesRepository
 import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -38,7 +39,7 @@ class NotesViewModel @Inject constructor(private val repository: NotesRepository
 
     // Fetch all notes from the repository
     private fun fetchNotes() {
-        viewModelScope.launch {
+        viewModelScope.launch (Dispatchers.IO){
             repository.getAllNotes().collect {
                 _notes.value = it
             }
@@ -47,7 +48,7 @@ class NotesViewModel @Inject constructor(private val repository: NotesRepository
 
     // Save or update a note
     fun saveOrUpdate(contact: Contact) {
-        viewModelScope.launch {
+        viewModelScope.launch(Dispatchers.IO) {
             repository.saveOrUpdate(contact)
         }
     }

@@ -1,4 +1,4 @@
-package com.example.roomstorage.data.Repository
+package com.example.roomstorage.domain.Repository
 
 import com.example.roomstorage.data.Contact
 import kotlinx.coroutines.flow.Flow
