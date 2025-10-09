@@ -22,7 +22,18 @@ android {
 
     buildTypes {
         release {
-            isMinifyEnabled = false
+            isMinifyEnabled = true
+            isShrinkResources = true
+
+            proguardFiles(
+                getDefaultProguardFile("proguard-android-optimize.txt"),
+                "proguard-rules.pro"
+            )
+        }
+        release {
+            isMinifyEnabled = true
+            isShrinkResources = true
+
             proguardFiles(
                 getDefaultProguardFile("proguard-android-optimize.txt"),
                 "proguard-rules.pro"
@@ -54,8 +65,8 @@ dependencies {
     implementation("androidx.hilt:hilt-navigation-compose:1.2.0")
 
     //Sql-ciper
-    implementation( "net.zetetic:android-database-sqlcipher:4.5.3")
-    implementation( "androidx.sqlite:sqlite:2.4.0")
+//    implementation( "net.zetetic:android-database-sqlcipher:4.5.3")
+//    implementation( "androidx.sqlite:sqlite:2.4.0")
 
     implementation(libs.androidx.core.ktx)
     implementation(libs.androidx.lifecycle.runtime.ktx)

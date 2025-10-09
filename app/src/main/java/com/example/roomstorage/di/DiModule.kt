@@ -15,8 +15,6 @@ import dagger.Provides
 import dagger.hilt.InstallIn
 import dagger.hilt.android.qualifiers.ApplicationContext
 import dagger.hilt.components.SingletonComponent
-import net.sqlcipher.database.SQLiteDatabase
-import net.sqlcipher.database.SupportFactory
 import javax.inject.Singleton
 
 @InstallIn(SingletonComponent::class)
@@ -33,12 +31,12 @@ object DiModule {
     }
     @Provides
     fun notesDaoProvider(@ApplicationContext context: Context):NotesDatabase{
-        val passkey = SQLiteDatabase.getBytes(Constants.SQLCIPER_KEY.toCharArray())
-        val factory = SupportFactory(passkey)
+       // val passkey = SQLiteDatabase.getBytes(Constants.SQLCIPER_KEY.toCharArray())
+        //val factory = SupportFactory(passkey)
         return Room.databaseBuilder(
             context = context,
             NotesDatabase::class.java, "note_db"
-        ).openHelperFactory(factory =factory ).build()
+        ).build()
     }
     @Provides
     fun ProvideRepoInstance(database: NotesDatabase): NotesRepository{
