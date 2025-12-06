@@ -7,82 +7,52 @@ import android.net.Uri
 import android.widget.Toast
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.contract.ActivityResultContracts
-import androidx.compose.animation.animateColorAsState
-import androidx.compose.animation.core.TwoWayConverter
-import androidx.compose.animation.core.animateDpAsState
-import androidx.compose.animation.core.animateFloatAsState
-import androidx.compose.animation.core.animateValueAsState
-import androidx.compose.animation.core.tween
+import androidx.compose.animation.*
+import androidx.compose.animation.core.*
+import androidx.compose.foundation.background
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.layout.Arrangement
-import androidx.compose.foundation.layout.Column
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.fillMaxSize
-import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
-import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
-import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonDefaults
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.ExperimentalMaterial3Api
-import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.OutlinedButton
-import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.Scaffold
-import androidx.compose.material3.Text
-import androidx.compose.material3.TopAppBar
-import androidx.compose.material3.TopAppBarDefaults
-import androidx.compose.runtime.Composable
-import androidx.compose.runtime.LaunchedEffect
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.remember
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Call
+import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.Phone
+import androidx.compose.material.icons.rounded.Add
+import androidx.compose.material3.*
+import androidx.compose.runtime.*
 import androidx.compose.runtime.saveable.rememberSaveable
-import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
+import androidx.compose.ui.graphics.*
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.TextFieldValue
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import com.example.roomstorage.Presentation.Viewmodels.NotesIntent
 import com.example.roomstorage.Presentation.Viewmodels.NotesViewModel
 import com.example.roomstorage.data.Contact
-
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun MainApp(viewModel: NotesViewModel = hiltViewModel()) {
     var input by remember { mutableStateOf(TextFieldValue("")) }
     var name by remember { mutableStateOf(TextFieldValue("")) }
-    val sizeAnimination = rememberSaveable { mutableStateOf(false) }
-    val sizeAniminationTransition = animateDpAsState(
-        targetValue = if(sizeAnimination.value) 45.dp else 12.dp,
-        animationSpec = tween(1000),
-        finishedListener = {
-            sizeAnimination.value = false
-        }
-    )
-    val colourState = rememberSaveable { mutableStateOf(false) }
-    val colourAniminate = animateColorAsState(
-        targetValue = if(colourState.value) Color.Cyan else MaterialTheme.colorScheme.primary,
-        animationSpec = tween(500),
-        finishedListener = {
-            colourState.value = false
-        }
-    )
-
-
-
+    
+    // Animation states
+    var isSaving by remember { mutableStateOf(false) }
+    
     // Observe the notes list from the ViewModel
     val notesList by viewModel.notes.collectAsState()
 
@@ -93,88 +63,135 @@ fun MainApp(viewModel: NotesViewModel = hiltViewModel()) {
 
     Scaffold(
         topBar = {
-            TopAppBar(
-                title = { Text("📒 Call Book") },
+            CenterAlignedTopAppBar(
+                title = { 
+                    Text(
+                        "📒 Call Book",
+                        style = MaterialTheme.typography.titleLarge
+                    ) 
+                },
                 colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                    containerColor = colourAniminate.value,
-                    titleContentColor = MaterialTheme.colorScheme.onPrimary
-                )
+                    containerColor = MaterialTheme.colorScheme.background,
+                    titleContentColor = MaterialTheme.colorScheme.primary
+                ),
+                modifier = Modifier.shadow(4.dp)
             )
-        }
+        },
+        containerColor = MaterialTheme.colorScheme.background
     ) { padding ->
         Column(
             modifier = Modifier
                 .padding(padding)
-                .padding(16.dp)
                 .fillMaxSize(),
             verticalArrangement = Arrangement.Top
         ) {
-            // Input Fields inside a Card
-            Card(
-                modifier = Modifier.fillMaxWidth(),
-                elevation = CardDefaults.cardElevation(6.dp),
-                shape = RoundedCornerShape(16.dp)
+            // Gradient Header / Input Section
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .padding(16.dp)
             ) {
-                Column(modifier = Modifier.padding(16.dp)) {
-                    OutlinedTextField(
-                        value = name,
-                        onValueChange = { name = it },
-                        label = { Text("Enter Name") },
-                        modifier = Modifier.fillMaxWidth()
+                Card(
+                    modifier = Modifier.fillMaxWidth(),
+                    elevation = CardDefaults.cardElevation(8.dp),
+                    shape = RoundedCornerShape(24.dp),
+                    colors = CardDefaults.cardColors(
+                        containerColor = MaterialTheme.colorScheme.surface
                     )
-                    Spacer(modifier = Modifier.height(8.dp))
-
-                    OutlinedTextField(
-                        value = input,
-                        onValueChange = { input = it },
-                        label = { Text("Enter Number") },
-                        modifier = Modifier.fillMaxWidth(),
-                        keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number)
-                    )
-
-                    Spacer(modifier = Modifier.height(16.dp))
-
-                    Button(
-                        onClick = {
-                            if (name.text.isNotBlank() && input.text.isNotBlank()) {
-                                val contact = Contact(
-                                    name = name.text.trim(),
-                                    call = input.text.trim()
-                                )
-                                sizeAnimination.value= true
-                                colourState.value = true
-                                viewModel.OnInent(NotesIntent.SaveNote(contact))
-                                name = TextFieldValue("")
-                                input = TextFieldValue("")
-
-                            }
-                        },
-                        modifier = Modifier.fillMaxWidth(),
-                        shape = RoundedCornerShape(sizeAniminationTransition.value),
-                        colors = ButtonDefaults.buttonColors(
-                            containerColor = colourAniminate.value
-                        )
+                ) {
+                    Column(
+                        modifier = Modifier.padding(20.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
                     ) {
+                        Text(
+                            "New Contact",
+                            style = MaterialTheme.typography.titleMedium,
+                            color = MaterialTheme.colorScheme.primary,
+                            modifier = Modifier.padding(bottom = 16.dp)
+                        )
 
+                        OutlinedTextField(
+                            value = name,
+                            onValueChange = { name = it },
+                            label = { Text("Name") },
+                            leadingIcon = { Icon(Icons.Default.Person, contentDescription = null) },
+                            modifier = Modifier.fillMaxWidth(),
+                            shape = RoundedCornerShape(12.dp),
+                            singleLine = true
+                        )
+                        Spacer(modifier = Modifier.height(12.dp))
 
-                        Text("💾 Save Contact")
+                        OutlinedTextField(
+                            value = input,
+                            onValueChange = { input = it },
+                            label = { Text("Phone Number") },
+                            leadingIcon = { Icon(Icons.Default.Phone, contentDescription = null) },
+                            modifier = Modifier.fillMaxWidth(),
+                            keyboardOptions = KeyboardOptions.Default.copy(keyboardType = KeyboardType.Number),
+                            shape = RoundedCornerShape(12.dp),
+                            singleLine = true
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        val buttonScale by animateFloatAsState(
+                            targetValue = if (isSaving) 0.95f else 1f,
+                            animationSpec = spring(dampingRatio = Spring.DampingRatioMediumBouncy),
+                            label = "buttonScale"
+                        )
+
+                        Button(
+                            onClick = {
+                                if (name.text.isNotBlank() && input.text.isNotBlank()) {
+                                    isSaving = true
+                                    val contact = Contact(
+                                        name = name.text.trim(),
+                                        call = input.text.trim()
+                                    )
+                                    viewModel.OnInent(NotesIntent.SaveNote(contact))
+                                    name = TextFieldValue("")
+                                    input = TextFieldValue("")
+                                    // Reset animation after a short delay
+                                }
+                            },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .height(56.dp)
+                                .scale(buttonScale), // Custom scale modifier usage requires import but let's use standard GraphicsLayer or just rely on state
+                            shape = RoundedCornerShape(16.dp),
+                            enabled = name.text.isNotBlank() && input.text.isNotBlank()
+                        ) {
+                            Icon(Icons.Rounded.Add, contentDescription = null)
+                            Spacer(modifier = Modifier.width(8.dp))
+                            Text("Save Contact", style = MaterialTheme.typography.labelLarge)
+                        }
+                        
+                        // Reset saving state for animation effect
+                        LaunchedEffect(isSaving) {
+                            if (isSaving) {
+                                kotlinx.coroutines.delay(150)
+                                isSaving = false
+                            }
+                        }
                     }
                 }
             }
 
-            Spacer(modifier = Modifier.height(20.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Saved Contacts",
+                text = "Contact List",
                 style = MaterialTheme.typography.titleMedium,
-                modifier = Modifier.padding(vertical = 8.dp)
+                modifier = Modifier.padding(horizontal = 24.dp, vertical = 8.dp),
+                color = MaterialTheme.colorScheme.onBackground
             )
 
             LazyColumn(
-                verticalArrangement = Arrangement.spacedBy(8.dp),
+                verticalArrangement = Arrangement.spacedBy(12.dp),
+                contentPadding = PaddingValues(horizontal = 16.dp, vertical = 8.dp),
                 modifier = Modifier.weight(1f)
             ) {
-                items(notesList) { contact ->
+                items(notesList, key = { it.id ?: it.hashCode() }) { contact ->
                     ContactItem(
                         contact = contact,
                         onDelete = { viewModel.OnInent(NotesIntent.DeleteNote(it)) }
@@ -188,8 +205,10 @@ fun MainApp(viewModel: NotesViewModel = hiltViewModel()) {
 @Composable
 fun ContactItem(contact: Contact, onDelete: (Contact) -> Unit) {
     var isPermissionGranted by remember { mutableStateOf(false) }
+    
+    // Animation for item entry could be handled by LazyColumn item animations in future versions,
+    // but for now we focus on the static look and interaction feel.
 
-    // Permission launcher for CALL_PHONE
     val requestPermissionLauncher = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.RequestPermission()
     ) { granted -> isPermissionGranted = granted }
@@ -206,45 +225,74 @@ fun ContactItem(contact: Contact, onDelete: (Contact) -> Unit) {
                     requestPermissionLauncher.launch(Manifest.permission.CALL_PHONE)
                 }
             },
-        shape = RoundedCornerShape(12.dp),
-        elevation = CardDefaults.cardElevation(4.dp)
+        shape = RoundedCornerShape(16.dp),
+        elevation = CardDefaults.cardElevation(2.dp),
+        colors = CardDefaults.cardColors(
+            containerColor = MaterialTheme.colorScheme.surfaceVariant.copy(alpha = 0.5f)
+        )
     ) {
         Row(
             modifier = Modifier
                 .padding(16.dp)
                 .fillMaxWidth(),
-            horizontalArrangement = Arrangement.SpaceBetween,
             verticalAlignment = Alignment.CenterVertically
         ) {
-            Column(modifier = Modifier.weight(1f)) {
+            // Avatar
+            Box(
+                modifier = Modifier
+                    .size(50.dp)
+                    .clip(CircleShape)
+                    .background(MaterialTheme.colorScheme.primaryContainer),
+                contentAlignment = Alignment.Center
+            ) {
                 Text(
-                    text = contact.name,
-                    style = MaterialTheme.typography.titleMedium
-                )
-                Text(
-                    text = contact.call,
-                    style = MaterialTheme.typography.bodyMedium,
-                    color = MaterialTheme.colorScheme.onSurfaceVariant
+                    text = contact.name.firstOrNull()?.toString()?.uppercase() ?: "?",
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onPrimaryContainer
                 )
             }
 
-            OutlinedButton(
-                onClick = { onDelete(contact) },
-                shape = RoundedCornerShape(10.dp)
-            ) {
-                Text("🗑 Delete")
+            Spacer(modifier = Modifier.width(16.dp))
+
+            Column(modifier = Modifier.weight(1f)) {
+                Text(
+                    text = contact.name,
+                    style = MaterialTheme.typography.titleMedium,
+                    color = MaterialTheme.colorScheme.onSurface
+                )
+                Spacer(modifier = Modifier.height(4.dp))
+                Row(verticalAlignment = Alignment.CenterVertically) {
+                    Icon(
+                        Icons.Default.Call, 
+                        contentDescription = null, 
+                        modifier = Modifier.size(14.dp),
+                        tint = MaterialTheme.colorScheme.secondary
+                    )
+                    Spacer(modifier = Modifier.width(4.dp))
+                    Text(
+                        text = contact.call,
+                        style = MaterialTheme.typography.bodyMedium,
+                        color = MaterialTheme.colorScheme.secondary
+                    )
+                }
+            }
+
+            IconButton(onClick = { onDelete(contact) }) {
+                Icon(
+                    Icons.Default.Delete,
+                    contentDescription = "Delete",
+                    tint = MaterialTheme.colorScheme.error
+                )
             }
         }
     }
 }
 
-
 fun makePhoneCall(context: Context, phoneNumber: String) {
     try {
         val callIntent = Intent(Intent.ACTION_CALL).apply {
-            //this.setData = Uri.parse("tel:$phoneNumber")
+            data = Uri.parse("tel:$phoneNumber")
         }
-        callIntent.setData(Uri.parse("tel:$phoneNumber"))
         context.startActivity(callIntent)
     } catch (e: SecurityException) {
         Toast.makeText(
@@ -254,3 +302,12 @@ fun makePhoneCall(context: Context, phoneNumber: String) {
         ).show()
     }
 }
+
+// Helper for scaling animation if needed, or use simple graphicsLayer
+fun Modifier.scale(scale: Float): Modifier = this.then(
+    Modifier.graphicsLayer {
+        scaleX = scale
+        scaleY = scale
+    }
+)
+
